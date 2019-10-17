@@ -1,0 +1,86 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <script src="/socket.io/socket.io.js"></script>
+<script>
+
+var socket = io();
+			
+window.onload = function () {
+
+var dpsx = []; // dataPoints
+var dpsy = [];
+var dpsz = [];
+var chart = new CanvasJS.Chart("chartContainer", {
+	title :{
+		text: "Dynamic Data"
+	},
+	axisX: {
+	    valueFormatString: " "
+	},
+	axisY: {
+		minimum: -200,
+		maximum: 200
+	},
+	axisY2: {
+		minimum: 800,
+		maximum: 1200
+	},
+	data: [{
+		type: "line",
+		dataPoints: dpsx
+	},
+	{
+		type: "line",
+		dataPoints: dpsy
+	},
+	{
+		type: "line",
+        axisYType: "secondary",
+		dataPoints: dpsz
+	}]
+});
+
+
+var xVal = 0;
+var yVal = 100; 
+var updateInterval = 10;
+var dataLength = 200; // number of dataPoints visible at any point
+
+
+socket.on('data', function(data){
+	var xyz = data.split(",")
+	
+	dpsx.push({
+		x: xVal,
+		y: parseInt(xyz[0], 10)
+	});
+	dpsy.push({
+		x: xVal,
+		y: parseInt(xyz[1], 10)
+	});
+	dpsz.push({
+		x: xVal,
+		y: parseInt(xyz[2], 10)
+	});
+
+
+	xVal++;
+
+	if (dpsx.length > dataLength) {
+		dpsx.shift();
+		dpsy.shift();
+		dpsz.shift();
+	}
+
+	chart.render();
+});
+
+}
+</script>
+</head>
+<body>
+<div id="chartContainer" style="height: 300px; max-width: 1200px;"></div>
+<script src="canvasjs.min.js"></script>
+</body>
+</html>
