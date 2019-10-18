@@ -3,7 +3,7 @@ const app = express();
 
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
-
+var lasttime = Date.now();
 
 const SerialPort = require('serialport')
 const Readline = SerialPort.parsers.Readline
@@ -13,7 +13,9 @@ const parser = new Readline()
 port.pipe(parser)
 
 parser.on('data', function (data) {
-  console.log('Data:', data)
+  var diff = Date.now()-lasttime
+  lasttime = Date.now()
+  console.log(diff+': '+ data)
   io.emit('data', data)
 })
 
