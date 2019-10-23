@@ -8,6 +8,17 @@ const notifyCharacteristicUuid = '1ed9e2c0266f11e6850b0002a5d5c51b';
 const startMsg = Buffer.from("7374617274", "hex")
 const stopMsg = Buffer.from("656e64", "hex")
 
+//SSID and PSK must not contain any colon (:), as this is used as delimiter
+//s:Alfafoxtrot
+const ssid = Buffer.from("733a416c6661666f7874726f74", "hex")
+//k:76akq1ciw60i9
+const psk  = Buffer.from("6b3a3736616b713163697736306939", "hex")
+
+//i:172.20.10.6
+const ip = Buffer.from("693a3137322e32302e31302e36", "hex")
+//p:12345
+const port = Buffer.from("703a3132333435", "hex")
+
 var lasttime = Date.now()
 
 noble.on('stateChange', function(state) {
@@ -39,12 +50,13 @@ noble.on('discover', function(peripheral) {
   // which could be formatted as an iBeacon.
   //
   console.log('found peripheral:', peripheral.advertisement);
+  
   peripheral.once('disconnect', function(){
-	console.log("XDK disconnected. Restarting scanning.");
+	console.log("XDK disconnected. Restarting scanning...");
 	XDKService = null;
     writeCharacteristic = null;
     notifyCharacteristic = null;
-    noble.startScanning([XDKServiceUuid], false);
+	noble.startScanning([XDKServiceUuid], false)
   });
 
   //
@@ -55,6 +67,7 @@ noble.on('discover', function(peripheral) {
     // Once the peripheral has been connected, then discover the
     // services and characteristics of interest.
     //
+	
     peripheral.discoverServices([XDKServiceUuid], function(err, services) {
       services.forEach(function(service) {
         //
@@ -66,7 +79,6 @@ noble.on('discover', function(peripheral) {
         // So, discover its characteristics.
         //
         service.discoverCharacteristics([], function(err, characteristics) {
-
           characteristics.forEach(function(characteristic) {
             //
             // Loop through each characteristic and match them to the
@@ -102,8 +114,15 @@ noble.on('discover', function(peripheral) {
 				process.send(datastring)
 			  }
             });
+            console.log("configuring");
+            write(ssid);
+			write(psk);
+            write(ip);
+            write(port);
+
             console.log("commence streaming");
             write(startMsg);
+
           }
           else {
             console.log('missing characteristics');
