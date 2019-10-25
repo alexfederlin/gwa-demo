@@ -134,6 +134,25 @@ noble.on('discover', function(peripheral) {
 })
 
 
+process.on('SIGINT', exitHandler.bind(null, {exit:true}));
+process.on('SIGTERM', exitHandler.bind(null, {exit:true}));
+process.on('SIGUSR1', exitHandler.bind(null, {exit:true}));
+process.on('SIGUSR2', exitHandler.bind(null, {exit:true}));
+
+
+function exitHandler(options, exitCode) {
+    if (options.cleanup) console.log('clean');
+    if (exitCode || exitCode === 0) console.log(exitCode);
+    if (options.exit) {
+		write(stopMsg);
+		process.exit();
+	}
+}
+
+process.on('beforeExit', (code) => {
+  write(stopMsg);	
+  console.log('Process beforeExit event with code: ', code);
+});
 
 function write(msg){
 
