@@ -7,7 +7,8 @@ const fork = require('child_process').fork;
 
 var msgcounter=0;
 
-const serialchildfile = path.resolve('serialchild.js');
+//const serialchildfile = path.resolve('serialchild.js');
+const udpchildfile = path.resolve('udpserver.js');
 const btchildfile = path.resolve('btchild.js');
 
 const serialport = '/dev/ttyACM0'
@@ -19,12 +20,13 @@ const options = {
 
 console.log("forking children");
 
-const serialchild = fork(serialchildfile, parameters, options);
+//const serialchild = fork(serialchildfile, parameters, options);
 const btchild = fork(btchildfile, [], options);
+const udpchild = fork(udpchildfile, [], options);
 
-setupChild(serialchild);
+//setupChild(serialchild);
 setupChild(btchild);
-
+setupChild(udpchild);
 
 
 app.use(express.static('res'));
@@ -59,6 +61,6 @@ function setupChild(child){
 	});
 	
 	child.on('exit', (code) => {
-    console.log(`serialchild process exited with code ${code}`);
+    console.log(`child process exited with code ${code}`);
 });
 }
